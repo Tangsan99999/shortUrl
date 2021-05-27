@@ -29,8 +29,8 @@ Copy the `index.js` code from this project to Cloudflare Worker.
 Click Save and Deploy
 
 # Demo
-https://5it.me
+https://020.name
  
-Note: Because someone abuse this demo website, all the generated link will automatically expired after 24 hours. For long-term use, please deploy your own.
+Note: Because someone abuse this demo website, all the generated link may be deleted at any time. For long-term use, please deploy your own.
 
-注意：由于该示例服务被人滥用，用于转发诈骗网站，故所有由demo网站生成的链接24小时后会自动失效，如需长期使用请自行搭建。
+注意：由于该示例服务被人滥用，用于转发诈骗网站，故所有由demo网站生成的链接随时可能失效，如需长期使用请自行搭建。

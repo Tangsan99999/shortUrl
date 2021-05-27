@@ -84,7 +84,7 @@ async function handleRequest(request) {
   console.log(path)
   if(!path){
 
-    const html= await fetch("https://cdn.jsdelivr.net/gh/xyTom/Url-Shorten-Worker@gh-pages/index.html")
+    const html= await fetch("https://cdn.jsdelivr.net/gh/AoEiuV020/Url-Shorten-Worker@gh-pages/index.html")
     
     return new Response(await html.text(), {
     headers: {

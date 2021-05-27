@@ -17,7 +17,7 @@ async function randomString(len) {
 }
 async function checkURL(URL){
     let str=URL;
-    let Expression=/http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?/;
+    let Expression=/^http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w\-.\/?%&=]*)?$/;
     let objExp=new RegExp(Expression);
     if(objExp.test(str)==true){
       if (str[0] == 'h')

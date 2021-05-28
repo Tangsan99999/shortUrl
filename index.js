@@ -1,3 +1,5 @@
+const github_repo = 'AoEiuV020/Url-Shorten-Worker'
+const github_version = '@97d24c3'
 const html404 = `<!DOCTYPE html>
 <body>
   <h1>404 Not Found.</h1>
@@ -84,9 +86,12 @@ async function handleRequest(request) {
   console.log(path)
   if(!path){
 
-    const html= await fetch("https://cdn.jsdelivr.net/gh/AoEiuV020/Url-Shorten-Worker@main/index.html")
+    const html= await fetch(`https://cdn.jsdelivr.net/gh/${github_repo}${github_version}/index.html`)
+    const text = (await html.text())
+        .replace("###GITHUB_REPO###", github_repo)
+        .replace("###GITHUB_VERSION###", github_version)
     
-    return new Response(await html.text(), {
+    return new Response(text, {
     headers: {
       "content-type": "text/html;charset=UTF-8",
     },

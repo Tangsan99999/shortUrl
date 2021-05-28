@@ -88,8 +88,8 @@ async function handleRequest(request) {
 
     const html= await fetch(`https://cdn.jsdelivr.net/gh/${github_repo}${github_version}/index.html`)
     const text = (await html.text())
-        .replace("###GITHUB_REPO###", github_repo)
-        .replace("###GITHUB_VERSION###", github_version)
+        .replaceAll("###GITHUB_REPO###", github_repo)
+        .replaceAll("###GITHUB_VERSION###", github_version)
     
     return new Response(text, {
     headers: {

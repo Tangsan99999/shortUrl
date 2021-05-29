@@ -4,7 +4,7 @@ const github_repo = (typeof(GITHUB_REPO)!="undefined"&&GITHUB_REPO)
 // 项目版本，cdn会有缓存，所以有更新时需要指定版本，
 const github_version = (typeof(GITHUB_VERSION)!="undefined"&&GITHUB_VERSION)
     ||'@main'
-// 密码，密码正确情况无视白名单限制，
+// 密码，密码正确情况无视白名单限制，且支持自定义短链接，
 const password = (typeof(PASSWORD)!="undefined"&&PASSWORD)
     ||'AoEiuV020 yes'
 // 短链超时，单位毫秒，支持整数乘法，0表示不设置超时，
@@ -73,20 +73,25 @@ async function checkHash(url, hash) {
     }
     return (await md5(url+password)) == hash
 }
-async function save_url(url, admin){
-    let random_key=await randomString()
-    let is_exist=await LINKS.get(random_key)
+async function save_url(url, key, admin){
+    // 密码正确且指定了key的情况直接覆盖旧值，
+    const override = admin && key
+    if (!override) {
+        // 密码不正确情况无视指定key,
+        key = await randomString()
+    }
+    let is_exist=await LINKS.get(key)
     console.log(is_exist)
-    if (is_exist == null) {
+    if (override || is_exist == null) {
         var mode = 3
         if (admin) {
             mode = 0
         }
         let value = `${mode};${Date.now()};${url}`
-        return await LINKS.put(random_key, value),random_key
+        return await LINKS.put(key, value),key
     }
     else {
-        save_url(url, admin)
+        save_url(url, key, admin)
     }
 }
 async function handleRequest(request) {
@@ -105,7 +110,7 @@ async function handleRequest(request) {
       "Access-Control-Allow-Methods": "POST",
       },
     })}
-    let stat,random_key=await save_url(req["url"], admin)
+    let stat,random_key=await save_url(req["url"], req["key"], admin)
     console.log(stat)
     if (typeof(stat) == "undefined"){
       return new Response(`{"status":200,"key":"/`+random_key+`"}`, {

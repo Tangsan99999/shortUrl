@@ -1,22 +1,30 @@
 // 项目名，决定html从哪个项目获取，
-const github_repo = 'AoEiuV020/Url-Shorten-Worker'
+const github_repo = (typeof(GITHUB_REPO)!="undefined"&&GITHUB_REPO)
+    ||'AoEiuV020/Url-Shorten-Worker'
 // 项目版本，cdn会有缓存，所以有更新时需要指定版本，
-const github_version = '@main'
+const github_version = (typeof(GITHUB_VERSION)!="undefined"&&GITHUB_VERSION)
+    ||'@main'
 // 密码，密码正确情况无视白名单限制，
-const password = (typeof(PASSWORD)!="undefined"&&PASSWORD)||'AoEiuV020 yes'
-// 短链超时，单位毫秒，0表示不设置超时，
-const shorten_timeout = 1000 * 60 * 10
-// 为true开启演示，为false非白名单请求不受理，
-const demo_mode = true
-// 白名单，写顶级域名就可以，自动通过顶级域名和所有二级域名，
-const white_list = [
-'aoeiuv020.com',
-'aoeiuv020.cn',
-'aoeiuv020.cc',
-'020.name',
-]
+const password = (typeof(PASSWORD)!="undefined"&&PASSWORD)
+    ||'AoEiuV020 yes'
+// 短链超时，单位毫秒，支持整数乘法，0表示不设置超时，
+const shorten_timeout = (typeof(SHORTEN_TIMEOUT)!="undefined"&&SHORTEN_TIMEOUT.split("*").reduce((a,b)=>parseInt(a)*parseInt(b),1))
+    ||(1000 * 60 * 10)
+// 为true开启演示，否则非白名单请求不受理，
+const demo_mode = (typeof(DEMO_MODE)!="undefined"&&DEMO_MODE === 'true')
+    ||true
+// 白名单，json数组格式，写顶级域名就可以，自动通过顶级域名和所有二级域名，
+const white_list = JSON.parse((typeof(WHITE_LIST)!="undefined"&&WHITE_LIST)
+    ||`[
+"aoeiuv020.com",
+"aoeiuv020.cn",
+"aoeiuv020.cc",
+"020.name"
+    ]`)
 // 演示模式开启时网页上展示这段禁止滥用提示，并不需要明确表示什么时候失效，
-const demo_notice = `注意：由于该示例服务被人滥用，用于转发诈骗网站，故所有由demo网站生成的链接随时可能失效，如需长期使用请自行搭建。`
+const demo_notice = (typeof(DEMO_NOTICE)!="undefined"&&DEMO_NOTICE)
+    ||`注意：为防止示例服务被人滥用，故所有由demo网站生成的链接随时可能失效，如需长期使用请自行搭建。`
+//console.log(`${github_repo}, ${github_version}, ${password}, ${shorten_timeout}, ${demo_mode}, ${white_list}, ${demo_notice}`)
 const html404 = `<!DOCTYPE html>
 <body>
   <h1>404 Not Found.</h1>

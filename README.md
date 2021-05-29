@@ -31,7 +31,7 @@ Copy the `index.js` code from this project to Cloudflare Worker.
 ### 调整白名单
 
 白名单中的域名设置短链接无视超时，  
-修改脚本开头的变量*white_list*, 是个数组，写顶级域名就可以，自动通过顶级域名和所有二级域名，
+修改脚本开头的变量*white_list*, 是个json数组，写顶级域名就可以，自动通过顶级域名和所有二级域名，
 
 ### 关闭演示模式
 
@@ -42,6 +42,8 @@ Copy the `index.js` code from this project to Cloudflare Worker.
 网页有个隐藏输入框可以输入密码，  
 密码正确情况无视白名单和超时设置，  
 修改脚本开头的变量*password*，这个私密信息比较建议直接在环境变量里配置，
+
+### 以上几个配置都可以在worker -> 设置 -> 环境变量中配置，
 
 ### 点击Save and Deploy
 
@@ -61,3 +63,4 @@ Note: Because someone abuse this demo website, all the generated link may be del
 1. 添加了白名单支持，
 1. 添加了演示模式，
 1. 添加了隐藏密码支持，
+1. 所有配置可以脱离脚本在环境变量配置，

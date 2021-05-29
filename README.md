@@ -45,6 +45,8 @@ Copy the `index.js` code from this project to Cloudflare Worker.
 
 ### 以上几个配置都可以在worker -> 设置 -> 环境变量中配置，
 
+![img](readme/cfWorderEnvironment.png)
+
 ### 点击Save and Deploy
 
 Click Save and Deploy

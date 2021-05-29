@@ -1,9 +1,11 @@
 // 项目名，决定html从哪个项目获取，
 const github_repo = 'AoEiuV020/Url-Shorten-Worker'
 // 项目版本，cdn会有缓存，所以有更新时需要指定版本，
-const github_version = '@97d24c3'
+const github_version = '@main'
 // 短链超时，单位毫秒，0表示不设置超时，
 const shorten_timeout = 1000 * 60 * 10
+// 为true开启演示，为false非白名单请求不受理，
+const demo_mode = true
 // 白名单，写顶级域名就可以，自动通过顶级域名和所有二级域名，
 const white_list = [
 'aoeiuv020.com',
@@ -11,6 +13,8 @@ const white_list = [
 'aoeiuv020.cc',
 '020.name',
 ]
+// 演示模式开启时网页上展示这段禁止滥用提示，并不需要明确表示什么时候失效，
+const demo_notice = `注意：由于该示例服务被人滥用，用于转发诈骗网站，故所有由demo网站生成的链接随时可能失效，如需长期使用请自行搭建。`
 const html404 = `<!DOCTYPE html>
 <body>
   <h1>404 Not Found.</h1>
@@ -41,6 +45,10 @@ async function checkURL(url){
         return false;
     }
 } 
+// 检查域名是否在白名单中，参数只包含域名部分，
+async function checkWhite(host){
+    return white_list.some((h) => host == h || host.endsWith('.'+h))
+} 
 async function save_url(url){
     let random_key=await randomString()
     let is_exist=await LINKS.get(random_key)
@@ -58,7 +66,8 @@ async function handleRequest(request) {
   if (request.method === "POST") {
     let req=await request.json()
     console.log(req["url"])
-    if(!await checkURL(req["url"])){
+    if(!await checkURL(req["url"]) || (!demo_mode && !await checkWhite(new URL(req["url"]).host))){
+    // 非演示模式下，非白名单地址当成地址不合法处理，
     return new Response(`{"status":500,"key":": Error: Url illegal."}`, {
       headers: {
       "content-type": "text/html;charset=UTF-8",
@@ -104,6 +113,7 @@ async function handleRequest(request) {
     const text = (await html.text())
         .replaceAll("###GITHUB_REPO###", github_repo)
         .replaceAll("###GITHUB_VERSION###", github_version)
+        .replaceAll("###DEMO_NOTICE###", demo_notice)
     
     return new Response(text, {
     headers: {
@@ -135,7 +145,7 @@ async function handleRequest(request) {
       if (mode != 0 && shorten_timeout > 0
           && Date.now() - create_time > shorten_timeout) {
           const host = new URL(url).host
-          if (white_list.some((h) => host == h || host.endsWith('.'+h))) {
+          if (await checkWhite(host)) {
               console.log('white list')
           } else {
               // 超时和找不到做同样的处理，

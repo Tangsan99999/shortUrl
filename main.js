@@ -64,7 +64,3 @@ let res
   $(function () {
     $('[data-toggle="popover"]').popover()
   })
-  let notice="注意：由于该示例服务被人滥用，用于转发诈骗网站，故所有由demo网站生成的链接随时可能失效，如需长期使用请自行搭建。"
-  if(window.location.host=="020.name"){
-    document.getElementById("notice").innerHTML=notice
-  }

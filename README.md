@@ -33,6 +33,10 @@ Copy the `index.js` code from this project to Cloudflare Worker.
 白名单中的域名设置短链接无视超时，  
 修改脚本开头的变量*white_list*, 是个数组，写顶级域名就可以，自动通过顶级域名和所有二级域名，
 
+### 关闭演示模式
+
+修改脚本开头的变量*demo_mode*，为true开启演示，为false非白名单请求不受理，
+
 ### 点击Save and Deploy
 
 Click Save and Deploy
@@ -49,4 +53,4 @@ Note: Because someone abuse this demo website, all the generated link may be del
 1. 改进了正则匹配，
 1. 添加了超时判断处理，
 1. 添加了白名单支持，
-
+1. 添加了演示模式，

@@ -24,6 +24,15 @@ Where Variable name should set as `LINKS` and KV namespace is the namespace you 
 
 Copy the `index.js` code from this project to Cloudflare Worker. 
 
+### 调整超时设置
+
+修改脚本开头的变量*shorten_timeout*, 单位毫秒，0表示不设置超时，
+
+### 调整白名单
+
+白名单中的域名设置短链接无视超时，  
+修改脚本开头的变量*white_list*, 是个数组，写顶级域名就可以，自动通过顶级域名和所有二级域名，
+
 ### 点击Save and Deploy
 
 Click Save and Deploy

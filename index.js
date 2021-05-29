@@ -2,6 +2,8 @@
 const github_repo = 'AoEiuV020/Url-Shorten-Worker'
 // 项目版本，cdn会有缓存，所以有更新时需要指定版本，
 const github_version = '@main'
+// 密码，密码正确情况无视白名单限制，
+const password = (typeof(PASSWORD)!="undefined"&&PASSWORD)||'AoEiuV020 yes'
 // 短链超时，单位毫秒，0表示不设置超时，
 const shorten_timeout = 1000 * 60 * 10
 // 为true开启演示，为false非白名单请求不受理，
@@ -49,16 +51,34 @@ async function checkURL(url){
 async function checkWhite(host){
     return white_list.some((h) => host == h || host.endsWith('.'+h))
 } 
-async function save_url(url){
+async function md5(message) {
+  const msgUint8 = new TextEncoder().encode(message) // encode as (utf-8) Uint8Array
+  const hashBuffer = await crypto.subtle.digest('MD5', msgUint8) // hash the message
+  const hashArray = Array.from(new Uint8Array(hashBuffer)) // convert buffer to byte array
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('') // convert bytes to hex string
+
+  return hashHex
+}
+async function checkHash(url, hash) {
+    if (!hash) {
+        return false
+    }
+    return (await md5(url+password)) == hash
+}
+async function save_url(url, admin){
     let random_key=await randomString()
     let is_exist=await LINKS.get(random_key)
     console.log(is_exist)
     if (is_exist == null) {
-        let value = `3;${Date.now()};${url}`
+        var mode = 3
+        if (admin) {
+            mode = 0
+        }
+        let value = `${mode};${Date.now()};${url}`
         return await LINKS.put(random_key, value),random_key
     }
     else {
-        save_url(url)
+        save_url(url, admin)
     }
 }
 async function handleRequest(request) {
@@ -66,7 +86,9 @@ async function handleRequest(request) {
   if (request.method === "POST") {
     let req=await request.json()
     console.log(req["url"])
-    if(!await checkURL(req["url"]) || (!demo_mode && !await checkWhite(new URL(req["url"]).host))){
+    let admin = await checkHash(req["url"], req["hash"])
+    console.log("admin " + admin)
+    if(!await checkURL(req["url"]) || (!admin && !demo_mode && !await checkWhite(new URL(req["url"]).host))){
     // 非演示模式下，非白名单地址当成地址不合法处理，
     return new Response(`{"status":500,"key":": Error: Url illegal."}`, {
       headers: {
@@ -75,7 +97,7 @@ async function handleRequest(request) {
       "Access-Control-Allow-Methods": "POST",
       },
     })}
-    let stat,random_key=await save_url(req["url"])
+    let stat,random_key=await save_url(req["url"], admin)
     console.log(stat)
     if (typeof(stat) == "undefined"){
       return new Response(`{"status":200,"key":"/`+random_key+`"}`, {

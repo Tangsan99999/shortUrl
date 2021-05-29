@@ -37,6 +37,12 @@ Copy the `index.js` code from this project to Cloudflare Worker.
 
 修改脚本开头的变量*demo_mode*，为true开启演示，为false非白名单请求不受理，
 
+### 修改密码
+
+网页有个隐藏输入框可以输入密码，  
+密码正确情况无视白名单和超时设置，  
+修改脚本开头的变量*password*，这个私密信息比较建议直接在环境变量里配置，
+
 ### 点击Save and Deploy
 
 Click Save and Deploy
@@ -54,3 +60,4 @@ Note: Because someone abuse this demo website, all the generated link may be del
 1. 添加了超时判断处理，
 1. 添加了白名单支持，
 1. 添加了演示模式，
+1. 添加了隐藏密码支持，

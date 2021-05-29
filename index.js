@@ -1,6 +1,16 @@
+// 项目名，决定html从哪个项目获取，
 const github_repo = 'AoEiuV020/Url-Shorten-Worker'
+// 项目版本，cdn会有缓存，所以有更新时需要指定版本，
 const github_version = '@97d24c3'
-const shorten_timeout = 1000 * 60 * 60 * 10 // 短链超时，单位毫秒，0表示不设置超时，
+// 短链超时，单位毫秒，0表示不设置超时，
+const shorten_timeout = 1000 * 60 * 10
+// 白名单，写顶级域名就可以，自动通过顶级域名和所有二级域名，
+const white_list = [
+'aoeiuv020.com',
+'aoeiuv020.cn',
+'aoeiuv020.cc',
+'020.name',
+]
 const html404 = `<!DOCTYPE html>
 <body>
   <h1>404 Not Found.</h1>
@@ -124,14 +134,19 @@ async function handleRequest(request) {
       const create_time = parseInt(list[1])
       if (mode != 0 && shorten_timeout > 0
           && Date.now() - create_time > shorten_timeout) {
-          // 超时和找不到做同样的处理，
-          console.log("shorten timeout")
-          return new Response(html404, {
-            headers: {
-              "content-type": "text/html;charset=UTF-8",
-            },
-            status: 404
-          })
+          const host = new URL(url).host
+          if (white_list.some((h) => host == h || host.endsWith('.'+h))) {
+              console.log('white list')
+          } else {
+              // 超时和找不到做同样的处理，
+              console.log("shorten timeout")
+              return new Response(html404, {
+                headers: {
+                  "content-type": "text/html;charset=UTF-8",
+                },
+                status: 404
+              })
+          }
       }
   }
   return Response.redirect(url, 302)

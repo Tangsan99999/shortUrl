@@ -69,3 +69,4 @@ Note: Because someone abuse this demo website, all the generated link may be del
 1. 添加了隐藏自定义短链接支持，
 1. 所有配置可以脱离脚本在环境变量配置，
 1. 支持回车键提交，
+1. 生成的短链接包含协议https，

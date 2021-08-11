@@ -2,6 +2,10 @@
 利用Cloudflare Worker实现的简单免费的短链接平台，  
 主要支持自用以及防滥用演示，  
 
+# API
+
+[中文API文档](API.md)
+
 # Getting start
 ### 去Workers KV中创建一个命名空间
 

@@ -48,7 +48,13 @@ Copy the `index.js` code from this project to Cloudflare Worker.
 密码正确情况无视白名单和超时设置，且支持自定义短链接，  
 修改脚本开头的变量*password*，这个私密信息比较建议直接在环境变量里配置，
 
-### 以上几个配置都可以在worker -> 设置 -> 环境变量中配置，
+### 修改短链长度
+
+短链长度就是随机生成的key也就是短链接的path部分的长度，  
+长度不够时容易出现重复，遇到重复时会自动延长，  
+修改脚本开头的变量*default_len*,
+
+### 以上几个配置都可以在worker -> 设置 -> 环境变量中配置，key均为对应大写，
 
 ![img](readme/cfWorderEnvironment.png)
 
@@ -74,3 +80,4 @@ Note: Because someone abuse this demo website, all the generated link may be del
 1. 所有配置可以脱离脚本在环境变量配置，
 1. 支持回车键提交，
 1. 生成的短链接包含协议https，
+1. 添加了短链长度设置和自动延长，

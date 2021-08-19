@@ -10,6 +10,9 @@ const password = (typeof(PASSWORD)!="undefined"&&PASSWORD)
 // 短链超时，单位毫秒，支持整数乘法，0表示不设置超时，
 const shorten_timeout = (typeof(SHORTEN_TIMEOUT)!="undefined"&&SHORTEN_TIMEOUT.split("*").reduce((a,b)=>parseInt(a)*parseInt(b),1))
     ||(1000 * 60 * 10)
+// 默认短链key的长度，遇到重复时会自动延长，
+const default_len = (typeof(DEFAULT_LEN)!="undefined"&&parseInt(DEFAULT_LEN))
+    || 6
 // 为true开启演示，否则非白名单请求不受理，
 const demo_mode = (typeof(DEMO_MODE)!="undefined"&&DEMO_MODE === 'true')
     ||true
@@ -33,9 +36,8 @@ const html404 = `<!DOCTYPE html>
 
 
 async function randomString(len) {
-　　len = len || 6;
-　　let $chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';    /****默认去掉了容易混淆的字符oOLl,9gq,Vv,Uu,I1****/
-　　let maxPos = $chars.length;
+  　　let $chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';    /****默认去掉了容易混淆的字符oOLl,9gq,Vv,Uu,I1****/
+  　　let maxPos = $chars.length;
 　　let result = '';
 　　for (i = 0; i < len; i++) {
 　　　　result += $chars.charAt(Math.floor(Math.random() * maxPos));
@@ -73,32 +75,61 @@ async function checkHash(url, hash) {
     }
     return (await md5(url+password)) == hash
 }
-async function save_url(url, key, admin){
+async function save_url(url, key, admin, len) {
+　　len = len || default_len;
     // 密码正确且指定了key的情况直接覆盖旧值，
     const override = admin && key
     if (!override) {
         // 密码不正确情况无视指定key,
-        key = await randomString()
+        key = await randomString(len)
     }
-    let is_exist=await LINKS.get(key)
-    console.log(is_exist)
-    if (override || is_exist == null) {
+    const is_exists = await load_url(key)
+    console.log("key exists " + key + " " + is_exists)
+    if (override || !is_exists) {
         var mode = 3
         if (admin) {
             mode = 0
         }
         let value = `${mode};${Date.now()};${url}`
         return await LINKS.put(key, value),key
+    } else {
+        return await save_url(url, key, admin, len + 1)
     }
-    else {
-        save_url(url, key, admin)
+}
+async function load_url(key) {
+    const value = await LINKS.get(key)
+    if (!value) {
+        return null
     }
+    const list = value.split(';')
+    console.log("value split " + list)
+    var url
+    if (list.length == 1) {
+        // 老数据暂且正常跳转，
+        url = list[0]
+    } else {
+        url = list[2]
+        const mode = parseInt(list[0])
+        const create_time = parseInt(list[1])
+        if (mode != 0 && shorten_timeout > 0
+            && Date.now() - create_time > shorten_timeout) {
+            const host = new URL(url).host
+            if (await checkWhite(host)) {
+                console.log('white list')
+            } else {
+                // 超时和找不到做同样的处理，
+                console.log("shorten timeout")
+                return null
+            }
+        }
+    }
+    return url
 }
 async function handleRequest(request) {
   console.log(request)
   if (request.method === "POST") {
     let req=await request.json()
-    console.log(req["url"])
+    console.log("url " + req["url"])
     let admin = await checkHash(req["url"], req["hash"])
     console.log("admin " + admin)
     if(!await checkURL(req["url"]) || (!admin && !demo_mode && !await checkWhite(new URL(req["url"]).host))){
@@ -111,7 +142,7 @@ async function handleRequest(request) {
       },
     })}
     let stat,random_key=await save_url(req["url"], req["key"], admin)
-    console.log(stat)
+    console.log("stat " + stat)
     if (typeof(stat) == "undefined"){
       return new Response(`{"status":200,"key":"/`+random_key+`"}`, {
       headers: {
@@ -156,9 +187,9 @@ async function handleRequest(request) {
     },
   })
   }
-  const value = await LINKS.get(path)
-  if (!value) {
-    // 找不到直接404,
+  const url = await load_url(path)
+  if (!url) {
+    // 找不到或者超时直接404,
     console.log('not found')
     return new Response(html404, {
       headers: {
@@ -166,33 +197,6 @@ async function handleRequest(request) {
       },
       status: 404
     })
-  }
-  const list = value.split(';')
-  console.log(list)
-  var url
-  if (list.length == 1) {
-      // 老数据暂且正常跳转，
-      url = list[0]
-  } else {
-      url = list[2]
-      const mode = parseInt(list[0])
-      const create_time = parseInt(list[1])
-      if (mode != 0 && shorten_timeout > 0
-          && Date.now() - create_time > shorten_timeout) {
-          const host = new URL(url).host
-          if (await checkWhite(host)) {
-              console.log('white list')
-          } else {
-              // 超时和找不到做同样的处理，
-              console.log("shorten timeout")
-              return new Response(html404, {
-                headers: {
-                  "content-type": "text/html;charset=UTF-8",
-                },
-                status: 404
-              })
-          }
-      }
   }
   return Response.redirect(url, 302)
 }

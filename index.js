@@ -4,7 +4,7 @@ const github_repo = (typeof(GITHUB_REPO)!="undefined"&&GITHUB_REPO)
 // 项目版本，cdn会有缓存，所以有更新时需要指定版本，
 const github_version = (typeof(GITHUB_VERSION)!="undefined"&&GITHUB_VERSION)
     ||'@main'
-// 密码，密码正确情况无视白名单限制，且支持自定义短链接，
+// 密码，密码正确情况无视白名单和超时设置，且支持自定义短链接，
 const password = (typeof(PASSWORD)!="undefined"&&PASSWORD)
     ||'AoEiuV020 yes'
 // 短链超时，单位毫秒，支持整数乘法，0表示不设置超时，
@@ -13,10 +13,10 @@ const shorten_timeout = (typeof(SHORTEN_TIMEOUT)!="undefined"&&SHORTEN_TIMEOUT.s
 // 默认短链key的长度，遇到重复时会自动延长，
 const default_len = (typeof(DEFAULT_LEN)!="undefined"&&parseInt(DEFAULT_LEN))
     || 6
-// 为true开启演示，否则非白名单请求不受理，
+// 为true开启演示，否则无密码且非白名单请求不受理，是则允许访客试用，超时后失效，
 const demo_mode = (typeof(DEMO_MODE)!="undefined"&&DEMO_MODE === 'true')
     ||true
-// 白名单，json数组格式，写顶级域名就可以，自动通过顶级域名和所有二级域名，
+// 白名单中的域名无视超时，json数组格式，写顶级域名就可以，自动通过顶级域名和所有二级域名，
 const white_list = JSON.parse((typeof(WHITE_LIST)!="undefined"&&WHITE_LIST)
     ||`[
 "aoeiuv020.com",

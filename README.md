@@ -31,6 +31,8 @@ Copy the `index.js` code from this project to Cloudflare Worker.
 
 ### 调整超时设置
 
+演示模式生成的短链接超时无法访问，  
+白名单或者密码正确情况超时设置无效，  
 修改脚本开头的变量*shorten_timeout*, 单位毫秒，0表示不设置超时，
 
 ### 调整白名单
@@ -40,7 +42,8 @@ Copy the `index.js` code from this project to Cloudflare Worker.
 
 ### 关闭演示模式
 
-修改脚本开头的变量*demo_mode*，为true开启演示，为false非白名单请求不受理，
+只有演示模式开启才允许访客无密码添加非白名单地址，超时短链接会失效，
+修改脚本开头的变量*demo_mode*，为true开启演示，为false无密码且非白名单请求不受理，
 
 ### 修改密码
 

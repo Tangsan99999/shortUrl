@@ -16,6 +16,9 @@ const default_len = typeof(DEFAULT_LEN)!="undefined" ? parseInt(DEFAULT_LEN)
 // 为true开启演示，否则无密码且非白名单请求不受理，是则允许访客试用，超时后失效，
 const demo_mode = typeof(DEMO_MODE)!="undefined" ? DEMO_MODE === 'true'
     : true
+// 为true自动删除超时的演示短链接记录，否则仅是标记过期，以便在后台查询历史记录，
+const remove_completely = typeof(REMOVE_COMPLETELY)!="undefined" ? REMOVE_COMPLETELY === 'true'
+    : true
 // 白名单中的域名无视超时，json数组格式，写顶级域名就可以，自动通过顶级域名和所有二级域名，
 const white_list = JSON.parse(typeof(WHITE_LIST)!="undefined" ? WHITE_LIST
     : `[
@@ -91,7 +94,14 @@ async function save_url(url, key, admin, len) {
             mode = 0
         }
         let value = `${mode};${Date.now()};${url}`
-        return await LINKS.put(key, value),key
+        if (remove_completely && mode != 0 && !await checkWhite(new URL(url).host)) {
+          // 利用expirationTtl实现过期记录自动删除，低于60秒会报错，
+          let ttl = Math.max(60, shorten_timeout / 1000)
+          console.log("key auto remove: " + key + ", " + ttl + "s")
+          return await LINKS.put(key, value, {expirationTtl: ttl}),key
+        } else {
+          return await LINKS.put(key, value),key
+        }
     } else {
         return await save_url(url, key, admin, len + 1)
     }

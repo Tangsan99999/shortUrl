@@ -45,6 +45,11 @@ Copy the `index.js` code from this project to Cloudflare Worker.
 只有演示模式开启才允许访客无密码添加非白名单地址，超时短链接会失效，
 修改脚本开头的变量*demo_mode*，为true开启演示，为false无密码且非白名单请求不受理，
 
+### 自动删除演示记录
+
+针对演示模式开启情况下的超时失效的短链接记录是否自动删除，
+修改脚本开头的变量*remove_completely*，为true自动删除超时的演示短链接记录，否则仅是标记过期，以便在后台查询历史记录，
+
 ### 修改密码
 
 网页有个隐藏输入框可以输入密码，  
@@ -84,3 +89,4 @@ Note: Because someone abuse this demo website, all the generated link may be del
 1. 支持回车键提交，
 1. 生成的短链接包含协议https，
 1. 添加了短链长度设置和自动延长，
+1. 支持开关自动删除演示过期记录，
